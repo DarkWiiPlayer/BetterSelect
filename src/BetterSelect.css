@@ -1,0 +1,13 @@
+better-select {
+	display: inline-block;
+	border-radius: 3px;
+	border: 1px solid color-mix(in oklab, currentcolor, transparent 60%);
+
+	&::part(display), &::part(drop-down) {
+	}
+
+	&::part(drop-down) {
+		margin-top: .2em;
+		padding-inline: .5em;
+	}
+}

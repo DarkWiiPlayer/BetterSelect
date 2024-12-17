@@ -1,0 +1,19 @@
+<script type="module">
+	import {BetterSelect} from "/src/BetterSelect.js"
+
+	customElements.define("better-select", BetterSelect)
+</script>
+
+<link rel="stylesheet" href="/src/BetterSelect.css">
+<style>
+	:root {
+		font-family: sans-serif;
+	}
+</style>
+
+<better-select>
+	<span slot="placeholder">Select some stuff here</span>
+	<option value="first">First value</option>
+	<option value="second">Second value</option>
+	<option value="third">Third value</option>
+</better-select>
