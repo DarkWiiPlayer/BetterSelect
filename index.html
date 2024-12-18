@@ -1,19 +1,42 @@
+<script type="module" src="https://md-block.verou.me/md-block.js"></script>
+
 <script type="module">
-	import {BetterSelect} from "/src/BetterSelect.js"
+	import {BetterSelect} from "./src/BetterSelect.js"
 
 	customElements.define("better-select", BetterSelect)
 </script>
 
-<link rel="stylesheet" href="/src/BetterSelect.css">
+<link rel="stylesheet" href="src/BetterSelect.css">
 <style>
-	:root {
-		font-family: sans-serif;
+	@import
+		url('https://cdn.jsdelivr.net/gh/darkwiiplayer/css@main/all.css')
+		layer(framework);
+	@import
+		url('https://cdn.jsdelivr.net/gh/darkwiiplayer/css@main/schemes/talia.css')
+		layer(theme);
+
+	better-select {
+		color: black;
+		background: white;
 	}
+
+	md-block:not([rendered]) { display: none }
 </style>
 
-<better-select>
-	<span slot="placeholder">Select some stuff here</span>
-	<option value="first">First value</option>
-	<option value="second">Second value</option>
-	<option value="third">Third value</option>
-</better-select>
+<main class="content-width">
+	<h1>Better Select</h1>
+
+	<p>A better muli-option input box for HTML</p>
+
+	<better-select class="search">
+		<span slot="placeholder">Placeholder...</span>
+		<option value="first">First value</option>
+		<option value="second">Second value</option>
+		<option value="third">Third value</option>
+	</better-select>
+
+	<vertical-spacer triple></vertical-spacer>
+
+	<md-block src="readme.md">
+	</md-block>
+</main>

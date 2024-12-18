@@ -32,6 +32,7 @@ const childObserver = new MutationObserver(mutations => {
 })
 
 export class BetterSelect extends HTMLElement {
+	/** @type {AbortController} */
 	#abortOpen
 	#value = {}
 
@@ -41,43 +42,42 @@ export class BetterSelect extends HTMLElement {
 	static styleSheet = css`
 		:host {
 			position: relative;
+			z-index: 100;
+			display: inline-block;
 		}
 		* {
 			box-sizing: border-box;
 		}
 		[part="display"] {
+			min-width: 100%;
+
+			/* Layout */
+			align-items: center;
 			display: inline-flex;
 			flex-flow: row nowrap;
 
-			min-width: 20em;
-
-			padding: .4em;
-
+			/* Styling */
 			cursor: pointer;
-
-			:last-child {
-				display: block;
-				margin-left: auto;
-			}
+		}
+		[part="display-text"]:empty {
+			display: none;
 		}
 		:not(:empty + *)[name="placeholder"] {
 			display: none;
 		}
-		[part="drop-down"] {
+		[part="drop-down"], [part="item"] {
 			/* Resets */
 			border: unset;
+			outline: unset;
 			padding: unset;
+		}
+		[part="drop-down"] {
 			background: inherit;
 			color: inherit;
 
 			position: absolute;
-			width: 100%;
 			flex-flow: column;
-			--gap: .4em;
 			margin: 0;
-
-			gap: var(--gap);
-			padding-top: var(--gap);
 		}
 		[part="drop-down"]:modal {
 			margin: auto;
@@ -95,6 +95,7 @@ export class BetterSelect extends HTMLElement {
 		[part="item"] {
 			display: block;
 			cursor: pointer;
+			white-space: nowrap;
 		}
 		[part="item"]:focus {
 			font-weight: bold;
@@ -105,30 +106,53 @@ export class BetterSelect extends HTMLElement {
 		slot[name="loading"] {
 			display: none;
 		}
+		:host(:state(--loading)) {
+			[part="list"] { display: none; }
+			slot[name="loading"] { display: block; }
+		}
 	`
+
+	/** @type {HTMLElement} */
+	display
+	/** @type {HTMLElement} */
+	text
+	/** @type {HTMLElement} */
+	list
+	/** @type {HTMLElement} */
+	placeholder
+	/** @type {HTMLInputElement} */
+	input
+	/** @type {HTMLDialogElement} */
+	dialog
+	/** @type {HTMLDialogElement} */
+	loading
 
 	constructor() {
 		super()
 		childObserver.observe(this, {childList: true})
 		this.attachShadow({mode: "open"}).innerHTML = `
 			<div id="display" part="display">
-				<slot name="before"></slot>
 				<span part="display-text" id="text"></span>
-				<slot name="placeholder" aria-hidden="true"></slot>
-				<slot name="after">🔽</slot>
+				<slot name="placeholder" aria-hidden="true">
+					<span id="placeholder" aria-hidden="true"></span>
+				</slot>
 			</div>
 			<dialog id="dialog" part="drop-down">
-				<input type="search" id="input" part="input" type="text"></input>
+				<input type="search" id="input" part="search" type="text"></input>
 				<ul id="list" part="list"></ul>
-				<slot name="loading"></slot>
+				<slot id="loading" name="loading"></slot>
 			</dialog>
 		`
 		this.shadowRoot.adoptedStyleSheets = [BetterSelect.styleSheet]
 
-		this.tabindex = 0
+		this.tabIndex = 0
+
+		this.#internals.role = "combobox"
 
 		this.options = this.getElementsByTagName("option")
-		for (const element of this.shadowRoot.querySelectorAll(`[id]`)) this[element.id] = element
+		for (const element of this.shadowRoot.querySelectorAll(`[id]`)) {
+			this[element.id] = element
+		}
 
 		this.shadowRoot.addEventListener("click", event => {
 			const item = event.target.closest("#list > li")
@@ -143,6 +167,18 @@ export class BetterSelect extends HTMLElement {
 			}
 		})
 
+		this.addEventListener("keydown", event => {
+			if (event.key == " " && !this.input.contains(this.shadowRoot.activeElement)) {
+				if (this.#internals.states.has("--open")) {
+					this.close()
+				} else {
+					this.open()
+				}
+			} else if (event.key == "Escape") {
+				this.close()
+			}
+		})
+
 		this.shadowRoot.addEventListener("input", event => {
 			const item = event.target.closest("#input")
 			if (item) {
@@ -150,19 +186,16 @@ export class BetterSelect extends HTMLElement {
 				event.stopPropagation()
 			}
 		})
-		this.addEventListener("focus", event => {
-			this.open()
-		})
 	}
 
-	open() {
+	async open() {
 		if (this.#abortOpen) return
 
 		this.#abortOpen = new AbortController()
 
-		const signal = this.#abortOpen.signal
+		const signal = this.closeSignal
 		window.addEventListener("click", event => {
-			if (!this.contains(event.target)) {
+			if (event.target instanceof HTMLElement && !this.contains(event.target)) {
 				this.close()
 			}
 		}, {signal})
@@ -174,6 +207,12 @@ export class BetterSelect extends HTMLElement {
 
 		this.dialog.show()
 		this.#internals.states.add("--open")
+
+		if ("populate" in this) {
+			this.#internals.states.add("--loading")
+			await this.populate()
+			this.#internals.states.delete("--loading")
+		}
 	}
 
 	close() {
@@ -186,6 +225,9 @@ export class BetterSelect extends HTMLElement {
 		this.dialog.close()
 	}
 
+	get closeSignal() { return this.#abortOpen?.signal }
+
+	/** @param {String} value */
 	search(value) {
 		for (const item of this.list.children) {
 			item.toggleAttribute("hidden", !this.match(value, item))
@@ -193,6 +235,11 @@ export class BetterSelect extends HTMLElement {
 	}
 
 	selectDefault() {
+		if (this.shadowRoot.activeElement?.matches(`[part="item"]`)) {
+			this.setOption(this.shadowRoot.activeElement)
+			this.close()
+			return
+		}
 		const candidates = [...this.list.children].filter(child => !child.hasAttribute("hidden"))
 		if (candidates.length) {
 			this.setOption(candidates[0])
@@ -200,6 +247,10 @@ export class BetterSelect extends HTMLElement {
 		}
 	}
 
+	/**
+	 * @param {string} value
+	 * @param {HTMLElement} item
+	 */
 	match(value, item) {
 		return item.innerText.toLowerCase().match(value.toLowerCase())
 	}
@@ -212,10 +263,15 @@ export class BetterSelect extends HTMLElement {
 		this.setOptions()
 	}
 
+	/** @param {HTMLElement} option */
 	setOption(option) {
 		this.setValue(option.dataset.value, option.innerHTML)
 	}
 
+	/**
+	 * @param {string} value
+	 * @param {string} state
+	 */
 	setValue(value, state=value) {
 		this.#value = {value, state}
 		this.#internals.setFormValue(value, state)
@@ -226,7 +282,8 @@ export class BetterSelect extends HTMLElement {
 	set value(value) {
 		for (const option of this.options) {
 			if (option.value === value) {
-				return this.setOption(option)
+				this.setOption(option)
+				return
 			}
 		}
 		throw `No option with value ${value}`
@@ -237,7 +294,7 @@ export class BetterSelect extends HTMLElement {
 	setOptions() {
 		this.list.replaceChildren()
 		for (const option of this.options) {
-			this.list.append(f`<li tab-index="-1" part="item" data-value="${option.value}">${option.innerText}</li>`)
+			this.list.append(f`<li tabindex="0" part="item" data-value="${option.value}">${option.innerText}</li>`)
 		}
 	}
 }
