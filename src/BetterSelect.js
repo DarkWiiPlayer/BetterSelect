@@ -203,6 +203,7 @@ export class BetterSelect extends HTMLElement {
 		this.addEventListener("keypress", event => {
 			if (event.key == "Enter") {
 				this.selectDefault()
+				this.dispatchEvent(new InputEvent("input", {bubbles: true}))
 			}
 		}, {signal})
 
@@ -275,6 +276,7 @@ export class BetterSelect extends HTMLElement {
 	 */
 	setValue(value, state=value) {
 		this.#value = {value, state}
+		this.dispatchEvent(new Event("change", {bubbles: true}));
 		this.#internals.setFormValue(value, state)
 		this.text.innerText = state
 	}

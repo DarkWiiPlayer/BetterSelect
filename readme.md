@@ -21,3 +21,8 @@
 ## Attributes
 
 * `closeSignal`: An AbortSignal that fires when the drop-down closes
+
+## Events
+
+* `change`: Fired whenever the value changes, even if via JavaScript
+* `input`: Fired when the value is changed by selecting an option (after `change`)
