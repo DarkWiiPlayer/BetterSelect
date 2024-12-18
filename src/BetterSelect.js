@@ -144,6 +144,7 @@ export class BetterSelect extends HTMLElement {
 			</dialog>
 		`
 		this.shadowRoot.adoptedStyleSheets = [BetterSelect.styleSheet]
+		this.#internals.setFormValue("", "")
 
 		this.tabIndex = 0
 
