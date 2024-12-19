@@ -50,19 +50,16 @@
 
 	<p>A better muli-option input box for HTML</p>
 
-	<form onsubmit='event.preventDefault(); console.table(Object.fromEntries(new FormData(document.querySelector("form")).entries()))'>
-		<better-select name="better-selection" class="search">
-			<span slot="placeholder">Placeholder...</span>
-			<option value="first">First value</option>
-			<option value="second">Second value</option>
-			<option value="third">Third value</option>
-		</better-select>
-		<button title="Log form data to dev console">Submit</button>
-	</form>
+	<better-select name="better-selection" class="search">
+		<span slot="placeholder">Placeholder...</span>
+		<option value="first">First value</option>
+		<option value="second">Second value</option>
+		<option value="third">Third value</option>
+	</better-select>
 
-	<details open>
+	<details>
 		<summary>More examples</summary>
-		<form>
+		<form onsubmit='event.preventDefault(); console.table(Object.fromEntries(new FormData(document.querySelector("form")).entries()))'>
 			<label>
 				<span>No Search</span>
 				<better-select>
@@ -88,6 +85,8 @@
 					<option value="third">Third value</option>
 				</better-select>
 			</label>
+			<button title="Log form data to dev console">Submit</button>
+			<p>Submit the form to have its form values printed to the dev console.</p>
 		</form>
 	</details>
 
