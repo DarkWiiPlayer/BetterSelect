@@ -48,6 +48,10 @@ better-select {
 		display: none;
 	}
 
+	&::part(placeholder) {
+		min-height: 1.4em;
+	}
+
 	&.search::part(search) {
 		display: block;
 	}

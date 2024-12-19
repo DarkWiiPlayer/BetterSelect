@@ -134,7 +134,7 @@ export class BetterSelect extends HTMLElement {
 			<div id="display" part="display">
 				<span part="display-text" id="text"></span>
 				<slot name="placeholder" aria-hidden="true">
-					<span id="placeholder" aria-hidden="true"></span>
+					<span part="placeholder" id="placeholder" aria-hidden="true"></span>
 				</slot>
 			</div>
 			<dialog id="dialog" part="drop-down">
