@@ -298,6 +298,9 @@ export class BetterSelect extends HTMLElement {
 		this.list.replaceChildren()
 		for (const option of this.options) {
 			this.list.append(f`<li tabindex="0" part="item" data-value="${option.value}">${option.innerText}</li>`)
+			if (option.selected) {
+				this.value = option.value
+			}
 		}
 	}
 }
