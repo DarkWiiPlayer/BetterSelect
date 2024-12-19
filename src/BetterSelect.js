@@ -267,7 +267,7 @@ export class BetterSelect extends HTMLElement {
 
 	/** @param {HTMLElement} option */
 	setOption(option) {
-		this.setValue(option.dataset.value, option.innerHTML)
+		this.setValue(option.dataset.value, option.innerText)
 	}
 
 	/**
