@@ -60,6 +60,37 @@
 		<button title="Log form data to dev console">Submit</button>
 	</form>
 
+	<details open>
+		<summary>More examples</summary>
+		<form>
+			<label>
+				<span>No Search</span>
+				<better-select>
+					<span slot="placeholder">Placeholder...</span>
+					<option value="first">First value</option>
+					<option value="second">Second value</option>
+					<option value="third">Third value</option>
+				</better-select>
+			</label>
+			<label>
+				<span>No Placeholder</span>
+				<better-select>
+					<option value="first">First value</option>
+					<option value="second">Second value</option>
+					<option value="third">Third value</option>
+				</better-select>
+			</label>
+			<label>
+				<span>Pre-Selected Option</span>
+				<better-select>
+					<option value="first">First value</option>
+					<option value="second" selected>Second value</option>
+					<option value="third">Third value</option>
+				</better-select>
+			</label>
+		</form>
+	</details>
+
 	<vertical-spacer triple></vertical-spacer>
 
 	<md-block src="readme.md">
