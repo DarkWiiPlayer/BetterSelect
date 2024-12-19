@@ -42,7 +42,6 @@ export class BetterSelect extends HTMLElement {
 	static styleSheet = css`
 		:host {
 			position: relative;
-			z-index: 100;
 			display: inline-block;
 		}
 		* {
@@ -78,6 +77,7 @@ export class BetterSelect extends HTMLElement {
 			position: absolute;
 			flex-flow: column;
 			margin: 0;
+			z-index: var(--layer-dropdown, 100);
 		}
 		[part="drop-down"]:modal {
 			margin: auto;
