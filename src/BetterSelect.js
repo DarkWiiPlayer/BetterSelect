@@ -13,6 +13,21 @@ const template = fn => {
 	}
 }
 
+/** Outwards iterator over an element's root nodes across shadow DOM boundaries
+ * @param {Element} element
+ */
+const ancestorRoots = function*(element) {
+	while (true) {
+		const root = element.getRootNode()
+		yield {root,element}
+		if (root instanceof ShadowRoot) {
+			element = root.host
+		} else {
+			break
+		}
+	}
+}
+
 const f = template(string => {
 	const template = document.createElement("template")
 	template.innerHTML = string
@@ -27,7 +42,8 @@ const css = template(string => {
 
 const childObserver = new MutationObserver(mutations => {
 	for (const mutation of mutations) {
-		mutation.target.mutationCallback()
+		if (mutation.target instanceof BetterSelect)
+			mutation.target.mutationCallback()
 	}
 })
 
@@ -195,11 +211,29 @@ export class BetterSelect extends HTMLElement {
 		this.#abortOpen = new AbortController()
 
 		const signal = this.closeSignal
-		window.addEventListener("click", event => {
-			if (event.target instanceof HTMLElement && !this.contains(event.target)) {
-				this.close()
-			}
-		}, {signal})
+
+		// Click events don't properly cross shadow-DOM boundaries.
+		// Therefore: one event is needed for each nested shadow-DOM
+		// in the element's ancestry.
+		for (const {root, element} of ancestorRoots(this)) {
+			root.addEventListener("click", event => {
+				if (event.target instanceof HTMLElement) {
+					// This can only happen within the same root as the
+					// current element so can be handled trivially
+					if (this.contains(event.target)) return
+
+					// On every level, if an event originates from the containing
+					// shadow host, it can get ignored, as the corresponding
+					// shadow root event handler has already handled it.
+					if (event.target == element) return
+
+					// The event target wasn't inside the element
+					// nor is indirectly hosting it.
+					this.close()
+				}
+			}, {signal})
+		}
+
 		this.addEventListener("keypress", event => {
 			if (event.key == "Enter") {
 				this.selectDefault()
