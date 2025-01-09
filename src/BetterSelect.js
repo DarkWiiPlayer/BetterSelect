@@ -41,10 +41,13 @@ const css = template(string => {
 })
 
 const childObserver = new MutationObserver(mutations => {
-	for (const mutation of mutations) {
-		if (mutation.target instanceof BetterSelect)
-			mutation.target.mutationCallback()
+	const targets = new Set()
+	for (const {target} of mutations) {
+		if (target instanceof BetterSelect)
+			targets.add(target)
 	}
+	for (const target of targets)
+		target.mutationCallback()
 })
 
 export class BetterSelect extends HTMLElement {

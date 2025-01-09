@@ -1,5 +1,8 @@
 {
 	"name": "@darkwiiplayer/better-select",
-	"module": "BetterSelect.js",
-	"type": "module"
+	"browser": "src/BetterSelect.js",
+	"type": "module",
+	"license": "MIT",
+	"version": "1.0.2",
+	"url": "https://darkwiiplayer.github.io/BetterSelect/"
 }
