@@ -3,6 +3,6 @@
 	"browser": "src/BetterSelect.js",
 	"type": "module",
 	"license": "MIT",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"url": "https://darkwiiplayer.github.io/BetterSelect/"
 }

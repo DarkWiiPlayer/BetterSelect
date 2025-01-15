@@ -157,7 +157,9 @@ export class BetterSelect extends HTMLElement {
 				</slot>
 			</div>
 			<dialog id="dialog" part="drop-down">
+				<slot name="top"></slot>
 				<input type="search" id="input" part="search" type="search"></input>
+				<slot name="below-search"></slot>
 				<ul id="list" part="list"></ul>
 				<slot name="bottom"></slot>
 				<slot id="loading" name="loading"></slot>
