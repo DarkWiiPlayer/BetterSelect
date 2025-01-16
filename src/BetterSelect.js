@@ -191,14 +191,30 @@ export class BetterSelect extends HTMLElement {
 		})
 
 		this.addEventListener("keydown", event => {
-			if (event.key == " " && this.list.contains(this.shadowRoot.activeElement)) {
-				if (this.#internals.states.has("--open")) {
+			const key = event.key
+			if (this.#internals.states.has("--open")) {
+				if (key == " " && this.list.contains(this.shadowRoot.activeElement)) {
 					this.close()
-				} else {
-					this.open()
+					event.preventDefault()
+					event.stopPropagation()
+				} else if (key == "Escape") {
+					this.close()
 				}
-			} else if (event.key == "Escape") {
-				this.close()
+			} else {
+				if (key == " ") {
+					this.open()
+				} else if (key == "Escape") {
+					this.keyboardSearchBuffer = ""
+					event.preventDefault()
+					event.stopPropagation()
+				} else if (key == "Backspace") {
+					event.preventDefault()
+					event.stopPropagation()
+				} else if (!event.ctrlKey && !event.altKey && key.match(/^[a-zA-Z0-9]$/)) {
+					this.keyboardSearchAppend(key)
+					event.preventDefault()
+					event.stopPropagation()
+				}
 			}
 		})
 
@@ -209,6 +225,39 @@ export class BetterSelect extends HTMLElement {
 				event.stopPropagation()
 			}
 		})
+	}
+
+	/**
+	 * @param {String} key
+	 */
+	keyboardSearchAppend(key) {
+		this.searchTimeout?.abort()
+		this.searchTimeout = new AbortController()
+
+		const timeout = 1000 * (Number(this.getAttribute("search-timeout")) || 1)
+		const ref = setTimeout(()=> {
+			console.warn("Clearing buffer: " + this.keyboardSearchBuffer)
+			this.keyboardSearchBuffer = ""
+		}, timeout)
+		this.searchTimeout.signal.addEventListener("abort", () => {
+			window.clearTimeout(ref)
+		})
+
+		this.keyboardSearchBuffer = (this.keyboardSearchBuffer || "") + key
+
+		this.closedSearch(this.keyboardSearchBuffer)
+	}
+
+	/**
+	 * @param {string} search
+	 */
+	closedSearch(search) {
+		for (const item of this.list.children) {
+			if (this.match(search, item)) {
+				this.setOption(item)
+				return
+			}
+		}
 	}
 
 	async open() {
@@ -342,5 +391,9 @@ export class BetterSelect extends HTMLElement {
 				this.value = option.value
 			}
 		}
+	}
+
+	clear() {
+		this.setValue(undefined, "")
 	}
 }
