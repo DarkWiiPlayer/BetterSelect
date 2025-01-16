@@ -191,7 +191,7 @@ export class BetterSelect extends HTMLElement {
 		})
 
 		this.addEventListener("keydown", event => {
-			if (event.key == " " && !this.input.contains(this.shadowRoot.activeElement)) {
+			if (event.key == " " && this.list.contains(this.shadowRoot.activeElement)) {
 				if (this.#internals.states.has("--open")) {
 					this.close()
 				} else {
