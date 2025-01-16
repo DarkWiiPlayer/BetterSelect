@@ -203,6 +203,8 @@ export class BetterSelect extends HTMLElement {
 			} else {
 				if (key == " ") {
 					this.open()
+					event.preventDefault()
+					event.stopPropagation()
 				} else if (key == "Escape") {
 					this.keyboardSearchBuffer = ""
 					event.preventDefault()
@@ -236,7 +238,6 @@ export class BetterSelect extends HTMLElement {
 
 		const timeout = 1000 * (Number(this.getAttribute("search-timeout")) || 1)
 		const ref = setTimeout(()=> {
-			console.warn("Clearing buffer: " + this.keyboardSearchBuffer)
 			this.keyboardSearchBuffer = ""
 		}, timeout)
 		this.searchTimeout.signal.addEventListener("abort", () => {
