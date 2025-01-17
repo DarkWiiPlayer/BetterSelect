@@ -1,6 +1,11 @@
+## Attributes
+
+* `placeholder` Placeholder displayed when nothing is selected
+* `search-placeholder` Placeholder passed to the search input in the drop-down
+
 ## Slots
 
-* `placeholder`: Only shown when nothing is selected
+* `placeholder`: Only shown when nothing is selected (replaces attribute placeholder if present)
 * `loading`: Hidden by default, shown instead of items while `populate()` runs
 
 ## Parts
@@ -18,9 +23,9 @@
 * `search(string)`: Called on search input to update the list of options
 * `match(string, element)`: Used by `search` to compare each option to the search string
 
-## Attributes
+## Properties
 
-* `closeSignal`: An AbortSignal that fires when the drop-down closes
+* `closeSignal`: (read-only) An AbortSignal that fires when the drop-down closes
 
 ## Events
 

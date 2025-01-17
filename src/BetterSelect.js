@@ -1,3 +1,4 @@
+
 const template = fn => {
 	return (arr, ...params) => {
 		if (arr instanceof Array) {
@@ -57,6 +58,7 @@ export class BetterSelect extends HTMLElement {
 
 	#internals = this.attachInternals()
 	static formAssociated = true
+	static observedAttributes = Object.freeze(["placeholder", "search-placeholder"])
 
 	static styleSheet = css`
 		:host {
@@ -394,7 +396,32 @@ export class BetterSelect extends HTMLElement {
 		}
 	}
 
+	/** Changes the placeholder displayed in the display area
+	 * @param {string} text
+	 */
+	placeholderChanged(text) {
+		this.placeholder.innerText = text
+	}
+
+	/** Changes the placeholder displayed in the search box when the drop-down is open
+	 * @param {string} text
+	 */
+	searchPlaceholderChanged(text) {
+		this.input.placeholder = text
+	}
+
 	clear() {
 		this.setValue(undefined, "")
 	}
+
+	/**
+	 * @param {String} name
+	 * @param {String} before
+	 * @param {String} after
+	 */
+	attributeChangedCallback(name, before, after) {
+		const methodName = name.replace(/-([a-z])/g, (_all, letter) => (letter.toUpperCase())) + "Changed"
+		if (methodName in this) this[methodName](after, before)
+	}
 }
+
