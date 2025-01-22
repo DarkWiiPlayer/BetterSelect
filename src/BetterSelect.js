@@ -377,7 +377,7 @@ export class BetterSelect extends HTMLElement {
 	set value(value) {
 		for (const option of this.options) {
 			if (option.value === String(value)) {
-				this.setOption(option)
+				this.setValue(option.value, option.innerText)
 				return
 			}
 		}
