@@ -426,6 +426,11 @@ export class BetterSelect extends HTMLElement {
 	 */
 	set name(name) { this.setAttribute("name", String(name)) }
 
+	/**
+	 * @return {HTMLFormElement}
+	 */
+	get form() { return this.#internals.form }
+
 	clear() {
 		this.setValue(undefined, "")
 	}
