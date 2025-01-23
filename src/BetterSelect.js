@@ -1,5 +1,11 @@
-
+/**
+ * @param {function} fn
+ */
 const template = fn => {
+	/**
+	 * @param {TemplateStringsArray|String} arr
+	 * @param {string[]} params
+	 */
 	return (arr, ...params) => {
 		if (arr instanceof Array) {
 			const buffer = []
@@ -410,6 +416,16 @@ export class BetterSelect extends HTMLElement {
 		this.input.placeholder = text
 	}
 
+	/**
+	 * @return {String}
+	 */
+	get name() { return this.getAttribute("name") }
+
+	/**
+	 * @param {String} name
+	 */
+	set name(name) { this.setAttribute("name", String(name)) }
+
 	clear() {
 		this.setValue(undefined, "")
 	}
@@ -424,4 +440,3 @@ export class BetterSelect extends HTMLElement {
 		if (methodName in this) this[methodName](after, before)
 	}
 }
-
