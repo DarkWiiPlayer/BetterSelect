@@ -1,4 +1,8 @@
 /**
+ * @typedef {"badInput"|"customError"|"patternMismatch"|"rangeOverflow"|"rangeUnderflow"|"stepMismatch"|"tooLong"|"tooShort"|"typeMismatch"|"valid"|"valueMissing"} ValidityConstraint
+ */
+
+/**
  * @param {function} fn
  */
 const template = fn => {
@@ -445,10 +449,6 @@ export class BetterSelect extends HTMLElement {
 	 */
 	set disabled(disabled) { this.toggleAttribute("disabled", disabled) }
 	get disabled() { return this.hasAttribute("disabled") }
-
-	/**
-	 * @typedef {"badInput"|"customError"|"patternMismatch"|"rangeOverflow"|"rangeUnderflow"|"stepMismatch"|"tooLong"|"tooShort"|"typeMismatch"|"valid"|"valueMissing"} ValidityConstraint
-	 */
 
 	/**
 	 * @param {ValidityConstraint} _constraint
