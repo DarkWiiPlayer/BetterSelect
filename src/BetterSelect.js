@@ -64,7 +64,7 @@ export class BetterSelect extends HTMLElement {
 
 	#internals = this.attachInternals()
 	static formAssociated = true
-	static observedAttributes = Object.freeze(["placeholder", "search-placeholder"])
+	static observedAttributes = Object.freeze(["placeholder", "search-placeholder", "required"])
 
 	static styleSheet = css`
 		:host {
@@ -235,6 +235,8 @@ export class BetterSelect extends HTMLElement {
 				event.stopPropagation()
 			}
 		})
+
+		this.setValidity()
 	}
 
 	/**
@@ -365,7 +367,7 @@ export class BetterSelect extends HTMLElement {
 
 	/** @param {HTMLElement} option */
 	setOption(option) {
-		this.setValue(option.dataset.value, option.innerText)
+		return this.setValue(option.dataset.value, option.innerText)
 	}
 
 	/**
@@ -377,6 +379,8 @@ export class BetterSelect extends HTMLElement {
 		this.dispatchEvent(new Event("change", {bubbles: true}));
 		this.#internals.setFormValue(value, state)
 		this.text.innerText = state
+
+		this.setValidity()
 	}
 
 	get value() { return this.#value.value }
@@ -396,7 +400,7 @@ export class BetterSelect extends HTMLElement {
 		this.list.replaceChildren()
 		for (const option of this.options) {
 			this.list.append(f`<li tabindex="0" part="item" data-value="${option.value}">${option.innerText}</li>`)
-			if (option.selected) {
+			if (this.value == undefined && option.selected) {
 				this.value = option.value
 			}
 		}
@@ -426,14 +430,50 @@ export class BetterSelect extends HTMLElement {
 	 */
 	set name(name) { this.setAttribute("name", String(name)) }
 
-	/**
-	 * @return {HTMLFormElement}
-	 */
 	get form() { return this.#internals.form }
 
 	clear() {
 		this.setValue(undefined, "")
 	}
+
+	/**
+	 * @param {Boolean} disabled
+	 */
+	set disabled(disabled) { this.toggleAttribute("disabled", disabled) }
+	get disabled() { return this.hasAttribute("disabled") }
+
+	setValidity() {
+		if (this.required) {
+			const valid = Boolean(this.value)
+			if (valid) {
+				this.#internals.setValidity({})
+			} else {
+				this.#internals.setValidity({valueMissing: true}, "Please select an option.")
+			}
+			return valid
+		} else {
+			this.#internals.setValidity({})
+			return true
+		}
+	}
+
+	checkValidity() { return this.#internals.checkValidity() }
+
+	get validity() { return this.#internals.validity }
+
+	get validationMessage() { return this.#internals.validationMessage }
+
+	get willValidate() { return this.#internals.willValidate }
+
+	/**
+	 * @param {Boolean} required
+	 */
+	set required(required) { this.toggleAttribute("required", required) }
+	get required() { return this.hasAttribute("required") }
+
+	reportValidity() { return this.#internals.reportValidity() }
+
+	requiredChanged() { this.setValidity() }
 
 	/**
 	 * @param {String} name
