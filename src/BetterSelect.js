@@ -446,13 +446,25 @@ export class BetterSelect extends HTMLElement {
 	set disabled(disabled) { this.toggleAttribute("disabled", disabled) }
 	get disabled() { return this.hasAttribute("disabled") }
 
+	/**
+	 * @typedef {"badInput"|"customError"|"patternMismatch"|"rangeOverflow"|"rangeUnderflow"|"stepMismatch"|"tooLong"|"tooShort"|"typeMismatch"|"valid"|"valueMissing"} ValidityConstraint
+	 */
+
+	/**
+	 * @param {ValidityConstraint} _constraint
+	 */
+	validityMessage(_constraint) {
+		return "Please select an option."
+	}
+
+
 	setValidity() {
 		if (this.required) {
 			const valid = Boolean(this.value)
 			if (valid) {
 				this.#internals.setValidity({})
 			} else {
-				this.#internals.setValidity({valueMissing: true}, "Please select an option.")
+				this.#internals.setValidity({valueMissing: true}, this.validityMessage("valueMissing"))
 			}
 			return valid
 		} else {
