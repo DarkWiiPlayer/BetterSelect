@@ -385,10 +385,14 @@ export class BetterSelect extends HTMLElement {
 
 	get value() { return this.#value.value }
 	set value(value) {
-		for (const option of this.options) {
-			if (option.value === String(value)) {
-				this.setValue(option.value, option.innerText)
-				return
+		if (value === undefined) {
+			this.clear()
+		} else {
+			for (const option of Array.from(this.options)) {
+				if (option.value === String(value)) {
+					this.setValue(option.value, option.innerText)
+					return
+				}
 			}
 		}
 		throw `No option with value ${value}`
