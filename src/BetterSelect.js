@@ -3,12 +3,19 @@
  */
 
 /**
- * @param {function} fn
+ * @template Result
+ * @typedef {((arr: TemplateStringsArray, ...params: String[])=>Result) & ((string: String)=>Result)} Template
+ */
+
+/**
+ * @template Type
+ * @param {(string: String)=>Type} fn
+ * @return {Template<Type>}
  */
 const template = fn => {
 	/**
-	 * @param {TemplateStringsArray|String} arr
-	 * @param {string[]} params
+	 * @param {String|TemplateStringsArray} arr
+	 * @param {String[]} params
 	 */
 	return (arr, ...params) => {
 		if (arr instanceof Array) {
@@ -67,6 +74,11 @@ export class BetterSelect extends HTMLElement {
 	#value = {}
 
 	#internals = this.attachInternals()
+
+	/** @type {Set<String>} */
+	// @ts-ignore
+	#states = this.#internals.states
+
 	static formAssociated = true
 	static observedAttributes = Object.freeze(["placeholder", "search-placeholder", "required"])
 
@@ -184,19 +196,25 @@ export class BetterSelect extends HTMLElement {
 
 		this.#internals.role = "combobox"
 
-		this.options = this.getElementsByTagName("option")
+		// @ts-ignore
+		this.options = /** @type {HTMLOptionElement[]} */(this.getElementsByTagName("option"))
+
+		// @ts-ignore
 		for (const element of this.shadowRoot.querySelectorAll(`[id]`)) {
 			this[element.id] = element
 		}
 
 		this.shadowRoot.addEventListener("click", event => {
+			/** @type {HTMLLIElement} */
+			// @ts-ignore
 			const item = event.target.closest("#list > li")
 			if (item) {
 				this.setOption(item)
 				this.dispatchEvent(new InputEvent("input", {bubbles: true}))
 				this.close()
-			} else if (!this.#internals.states.has("--open")) {
+			} else if (!this.#states.has("--open")) {
 				this.open()
+			// @ts-ignore
 			} else if (this.display.contains(event.target) || this.display.contains(event.target.closest("[slot]")?.assignedSlot)) {
 				this.close()
 			}
@@ -204,7 +222,7 @@ export class BetterSelect extends HTMLElement {
 
 		this.addEventListener("keydown", event => {
 			const key = event.key
-			if (this.#internals.states.has("--open")) {
+			if (this.#states.has("--open")) {
 				if (key == " " && this.list.contains(this.shadowRoot.activeElement)) {
 					this.close()
 					event.preventDefault()
@@ -233,6 +251,7 @@ export class BetterSelect extends HTMLElement {
 		})
 
 		this.shadowRoot.addEventListener("input", event => {
+			// @ts-ignore
 			const item = event.target.closest("#input")
 			if (item) {
 				this.search(item.value)
@@ -263,10 +282,9 @@ export class BetterSelect extends HTMLElement {
 		this.closedSearch(this.keyboardSearchBuffer)
 	}
 
-	/**
-	 * @param {string} search
-	 */
+	/** @param {string} search */
 	closedSearch(search) {
+		// @ts-ignore
 		for (const item of this.list.children) {
 			if (this.match(search, item)) {
 				this.setOption(item)
@@ -312,22 +330,25 @@ export class BetterSelect extends HTMLElement {
 		}, {signal})
 
 		this.dialog.show()
-		this.#internals.states.add("--open")
+		this.#states.add("open")
 
 		if ("populate" in this) {
-			this.#internals.states.add("--loading")
+			this.#states.add("--loading")
+			// @ts-ignore
 			await this.populate()
-			this.#internals.states.delete("--loading")
+			this.#states.delete("--loading")
 		}
 	}
 
 	close() {
 		this.input.value = null
+		// @ts-ignore
 		for (const hidden of this.list.querySelectorAll("[hidden]"))
 			hidden.removeAttribute("hidden")
 		this.#abortOpen?.abort()
 		this.#abortOpen = null
-		this.#internals.states.delete("--open")
+		// @ts-ignore
+		this.#states.delete("--open")
 		this.dialog.close()
 	}
 
@@ -335,18 +356,20 @@ export class BetterSelect extends HTMLElement {
 
 	/** @param {String} value */
 	search(value) {
+		// @ts-ignore
 		for (const item of this.list.children) {
 			item.toggleAttribute("hidden", !this.match(value, item))
 		}
 	}
 
 	selectDefault() {
-		if (this.shadowRoot.activeElement?.matches(`[part="item"]`)) {
-			this.setOption(this.shadowRoot.activeElement)
+		const active = this.shadowRoot.activeElement
+		if (active instanceof HTMLOptionElement && active?.matches(`[part="item"]`)) {
+			this.setOption(active)
 			this.close()
 			return
 		}
-		const candidates = [...this.list.children].filter(child => !child.hasAttribute("hidden"))
+		const candidates = /** @type {HTMLElement[]} */(Array.from(this.list.children).filter(child => !child.hasAttribute("hidden")))
 		if (candidates.length) {
 			this.setOption(candidates[0])
 			this.close()
