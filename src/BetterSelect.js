@@ -75,10 +75,6 @@ export class BetterSelect extends HTMLElement {
 
 	#internals = this.attachInternals()
 
-	/** @type {Set<String>} */
-	// @ts-ignore
-	#states = this.#internals.states
-
 	static formAssociated = true
 	static observedAttributes = Object.freeze(["placeholder", "search-placeholder", "required"])
 
@@ -196,25 +192,22 @@ export class BetterSelect extends HTMLElement {
 
 		this.#internals.role = "combobox"
 
-		// @ts-ignore
-		this.options = /** @type {HTMLOptionElement[]} */(this.getElementsByTagName("option"))
+		this.options = this.getElementsByTagName("option")
 
-		// @ts-ignore
 		for (const element of this.shadowRoot.querySelectorAll(`[id]`)) {
 			this[element.id] = element
 		}
 
 		this.shadowRoot.addEventListener("click", event => {
+			if (!(event.target instanceof HTMLElement)) return
 			/** @type {HTMLLIElement} */
-			// @ts-ignore
 			const item = event.target.closest("#list > li")
 			if (item) {
 				this.setOption(item)
 				this.dispatchEvent(new InputEvent("input", {bubbles: true}))
 				this.close()
-			} else if (!this.#states.has("--open")) {
+			} else if (!this.#internals.states.has("--open")) {
 				this.open()
-			// @ts-ignore
 			} else if (this.display.contains(event.target) || this.display.contains(event.target.closest("[slot]")?.assignedSlot)) {
 				this.close()
 			}
@@ -222,7 +215,7 @@ export class BetterSelect extends HTMLElement {
 
 		this.addEventListener("keydown", event => {
 			const key = event.key
-			if (this.#states.has("--open")) {
+			if (this.#internals.states.has("--open")) {
 				if (key == " " && this.list.contains(this.shadowRoot.activeElement)) {
 					this.close()
 					event.preventDefault()
@@ -251,8 +244,8 @@ export class BetterSelect extends HTMLElement {
 		})
 
 		this.shadowRoot.addEventListener("input", event => {
-			// @ts-ignore
-			const item = event.target.closest("#input")
+			/** @type {HTMLInputElement} */
+			const item = /** @type {HTMLElement} */(event.target).closest("#input")
 			if (item) {
 				this.search(item.value)
 				event.stopPropagation()
@@ -284,9 +277,8 @@ export class BetterSelect extends HTMLElement {
 
 	/** @param {string} search */
 	closedSearch(search) {
-		// @ts-ignore
 		for (const item of this.list.children) {
-			if (this.match(search, item)) {
+			if ((item instanceof HTMLElement) && this.match(search, item)) {
 				this.setOption(item)
 				return
 			}
@@ -330,25 +322,23 @@ export class BetterSelect extends HTMLElement {
 		}, {signal})
 
 		this.dialog.show()
-		this.#states.add("open")
+		this.#internals.states.add("open")
 
 		if ("populate" in this) {
-			this.#states.add("--loading")
+			this.#internals.states.add("--loading")
 			// @ts-ignore
 			await this.populate()
-			this.#states.delete("--loading")
+			this.#internals.states.delete("--loading")
 		}
 	}
 
 	close() {
 		this.input.value = null
-		// @ts-ignore
 		for (const hidden of this.list.querySelectorAll("[hidden]"))
 			hidden.removeAttribute("hidden")
 		this.#abortOpen?.abort()
 		this.#abortOpen = null
-		// @ts-ignore
-		this.#states.delete("--open")
+		this.#internals.states.delete("--open")
 		this.dialog.close()
 	}
 
@@ -356,9 +346,9 @@ export class BetterSelect extends HTMLElement {
 
 	/** @param {String} value */
 	search(value) {
-		// @ts-ignore
 		for (const item of this.list.children) {
-			item.toggleAttribute("hidden", !this.match(value, item))
+			if (item instanceof HTMLElement)
+				item.toggleAttribute("hidden", !this.match(value, item))
 		}
 	}
 
@@ -415,7 +405,7 @@ export class BetterSelect extends HTMLElement {
 		if (value === undefined) {
 			this.clear()
 		} else {
-			for (const option of Array.from(this.options)) {
+			for (const option of this.options) {
 				if (option.value === String(value)) {
 					this.setValue(option.value, option.innerText)
 					return
