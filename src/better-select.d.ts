@@ -45,7 +45,7 @@ export class BetterSelect extends HTMLElement {
      * @param {string} state
      */
     setValue(value: string, state?: string): void;
-    set value(value: any);
+    set value(arg: any);
     get value(): any;
     get valueText(): any;
     setOptions(): void;
@@ -60,7 +60,7 @@ export class BetterSelect extends HTMLElement {
     /**
      * @param {String} name
      */
-    set name(name: string);
+    set name(arg: string);
     /**
      * @return {String}
      */
@@ -70,7 +70,7 @@ export class BetterSelect extends HTMLElement {
     /**
      * @param {Boolean} disabled
      */
-    set disabled(disabled: boolean);
+    set disabled(arg: boolean);
     get disabled(): boolean;
     /**
      * @param {ValidityConstraint} _constraint
@@ -84,7 +84,7 @@ export class BetterSelect extends HTMLElement {
     /**
      * @param {Boolean} required
      */
-    set required(required: boolean);
+    set required(arg: boolean);
     get required(): boolean;
     reportValidity(): boolean;
     requiredChanged(): void;
