@@ -1,9 +1,12 @@
 {
 	"name": "@darkwiiplayer/better-select",
-	"browser": "src/BetterSelect.js",
+	"exports": {
+		".": "./src/better-select.js",
+		"./styles": "./src/better-select.css"
+	},
 	"type": "module",
 	"license": "MIT",
-	"version": "1.5.5",
+	"version": "2.0.0",
 	"url": "https://darkwiiplayer.github.io/BetterSelect/",
 	"scripts": {
 		"definitions": "tsc src/*.js --declaration --allowJs --emitDeclarationOnly"

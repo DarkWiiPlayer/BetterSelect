@@ -145,7 +145,7 @@ export class BetterSelect extends HTMLElement {
 		slot[name="loading"] {
 			display: none;
 		}
-		:host(:state(--loading)) {
+		:host(:state(loading)) {
 			[part="list"] { display: none; }
 			slot[name="loading"] { display: block; }
 		}
@@ -206,7 +206,7 @@ export class BetterSelect extends HTMLElement {
 				this.setOption(item)
 				this.dispatchEvent(new InputEvent("input", {bubbles: true}))
 				this.close()
-			} else if (!this.#internals.states.has("--open")) {
+			} else if (!this.#internals.states.has("open")) {
 				this.open()
 			} else if (this.display.contains(event.target) || this.display.contains(event.target.closest("[slot]")?.assignedSlot)) {
 				this.close()
@@ -215,7 +215,7 @@ export class BetterSelect extends HTMLElement {
 
 		this.addEventListener("keydown", event => {
 			const key = event.key
-			if (this.#internals.states.has("--open")) {
+			if (this.#internals.states.has("open")) {
 				if (key == " " && this.list.contains(this.shadowRoot.activeElement)) {
 					this.close()
 					event.preventDefault()
@@ -325,10 +325,10 @@ export class BetterSelect extends HTMLElement {
 		this.#internals.states.add("open")
 
 		if ("populate" in this) {
-			this.#internals.states.add("--loading")
+			this.#internals.states.add("loading")
 			// @ts-ignore
 			await this.populate()
-			this.#internals.states.delete("--loading")
+			this.#internals.states.delete("loading")
 		}
 	}
 
@@ -338,7 +338,7 @@ export class BetterSelect extends HTMLElement {
 			hidden.removeAttribute("hidden")
 		this.#abortOpen?.abort()
 		this.#abortOpen = null
-		this.#internals.states.delete("--open")
+		this.#internals.states.delete("open")
 		this.dialog.close()
 	}
 
