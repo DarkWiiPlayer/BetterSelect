@@ -74,6 +74,7 @@ export class BetterSelect extends HTMLElement {
 	#value = {}
 
 	#internals = this.attachInternals()
+	#states = /** @type {Set<String>} */(this.#internals.states)
 
 	static formAssociated = true
 	static observedAttributes = Object.freeze(["placeholder", "search-placeholder", "required"])
@@ -168,6 +169,10 @@ export class BetterSelect extends HTMLElement {
 
 	constructor() {
 		super()
+
+		try { this.#states.add("supports-states") }
+		catch { this.#states = new Set() }
+
 		childObserver.observe(this, {childList: true})
 		this.attachShadow({mode: "open"}).innerHTML = `
 			<div id="display" part="display">
@@ -206,7 +211,7 @@ export class BetterSelect extends HTMLElement {
 				this.setOption(item)
 				this.dispatchEvent(new InputEvent("input", {bubbles: true}))
 				this.close()
-			} else if (!this.#internals.states.has("open")) {
+			} else if (!this.#states.has("open")) {
 				this.open()
 			} else if (this.display.contains(event.target) || this.display.contains(event.target.closest("[slot]")?.assignedSlot)) {
 				this.close()
@@ -215,7 +220,7 @@ export class BetterSelect extends HTMLElement {
 
 		this.addEventListener("keydown", event => {
 			const key = event.key
-			if (this.#internals.states.has("open")) {
+			if (this.#states.has("open")) {
 				if (key == " " && this.list.contains(this.shadowRoot.activeElement)) {
 					this.close()
 					event.preventDefault()
@@ -322,13 +327,13 @@ export class BetterSelect extends HTMLElement {
 		}, {signal})
 
 		this.dialog.show()
-		this.#internals.states.add("open")
+		this.#states.add("open")
 
 		if ("populate" in this) {
-			this.#internals.states.add("loading")
+			this.#states.add("loading")
 			// @ts-ignore
 			await this.populate()
-			this.#internals.states.delete("loading")
+			this.#states.delete("loading")
 		}
 	}
 
@@ -338,7 +343,7 @@ export class BetterSelect extends HTMLElement {
 			hidden.removeAttribute("hidden")
 		this.#abortOpen?.abort()
 		this.#abortOpen = null
-		this.#internals.states.delete("open")
+		this.#states.delete("open")
 		this.dialog.close()
 	}
 
