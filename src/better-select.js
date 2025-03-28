@@ -7,6 +7,59 @@
  * @typedef {((arr: TemplateStringsArray, ...params: String[])=>Result) & ((string: String)=>Result)} Template
  */
 
+class StateAttributeSet {
+	/** @type {HTMLElement} */
+	#element
+
+	/** @type {Set<String>} */
+	#states
+
+	/**
+	 * @param {HTMLElement} element
+	 * @param {Set<String>} states
+	 */
+	constructor(element, states) {
+		try { states.add("supports-states") }
+		catch { states = new Set() }
+
+		this.#element = element
+		this.#states = states
+	}
+
+	/** @param {String} state */
+	add(state) {
+		this.#element.setAttribute(state, "")
+		this.#states.add(state)
+	}
+
+	/** @param {String} state */
+	delete(state) {
+		this.#element.removeAttribute(state)
+		this.#states.delete(state)
+	}
+
+	/** @param {String} state */
+	has(state) {
+		return this.#states.has(state)
+	}
+
+	/**
+	 * @param {String} state
+	 * @param {[]|[any]} force
+	 */
+	toggle(state, ...force) {
+		if (!force) {
+			force = [!this.#states.has(state)]
+		}
+		if (force[0]) {
+			this.#states.add(state)
+		} else {
+			this.#states.delete(state)
+		}
+		this.#element.toggleAttribute(state, this.#states.has(state))
+	}
+}
+
 /**
  * @template Type
  * @param {(string: String)=>Type} fn
@@ -74,7 +127,7 @@ export class BetterSelect extends HTMLElement {
 	#value = {}
 
 	#internals = this.attachInternals()
-	#states = /** @type {Set<String>} */(this.#internals.states)
+	#states = new StateAttributeSet(this, this.#internals.states)
 
 	static formAssociated = true
 	static observedAttributes = Object.freeze(["placeholder", "search-placeholder", "required"])
@@ -169,9 +222,6 @@ export class BetterSelect extends HTMLElement {
 
 	constructor() {
 		super()
-
-		try { this.#states.add("supports-states") }
-		catch { this.#states = new Set() }
 
 		childObserver.observe(this, {childList: true})
 		this.attachShadow({mode: "open"}).innerHTML = `
