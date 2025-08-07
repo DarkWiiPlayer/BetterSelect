@@ -126,6 +126,9 @@ export class BetterSelect extends HTMLElement {
 	#abortOpen
 	#value = {}
 
+	/** @type {number} */
+	#index = undefined
+
 	#internals = this.attachInternals()
 	#states = new StateAttributeSet(this, this.#internals.states)
 
@@ -313,6 +316,14 @@ export class BetterSelect extends HTMLElement {
 					this.keyboardSearchAppend(key)
 					event.preventDefault()
 					event.stopPropagation()
+				} else if (key == "Delete") {
+					this.clear()
+				} else if (key == "ArrowDown") {
+					event.preventDefault()
+					this.next()
+				} else if (key == "ArrowUp") {
+					event.preventDefault()
+					this.previous()
 				}
 			}
 		})
@@ -459,14 +470,17 @@ export class BetterSelect extends HTMLElement {
 
 	/** @param {HTMLElement} option */
 	setOption(option) {
-		return this.setValue(option.dataset.value, option.innerText)
+		return this.setValue(Number(option.dataset.index), option.dataset.value, option.innerText)
 	}
 
 	/**
+	 * @param {number} index
 	 * @param {string} value
 	 * @param {string} state
 	 */
-	setValue(value, state=value) {
+	setValue(index, value, state=value) {
+		this.#index = Number(index)
+
 		this.#value = {value, state}
 		this.dispatchEvent(new Event("change", {bubbles: true}));
 		this.#internals.setFormValue(value, state)
@@ -498,9 +512,10 @@ export class BetterSelect extends HTMLElement {
 		if (value === undefined) {
 			this.clear()
 		} else {
+			let index = 0
 			for (const option of this.options) {
 				if (option.value === String(value)) {
-					this.setValue(option.value, option.innerText)
+					this.setValue(index++, option.value, option.innerText)
 					return
 				}
 			}
@@ -512,8 +527,9 @@ export class BetterSelect extends HTMLElement {
 
 	setOptions() {
 		this.list.replaceChildren()
+		let idx = 0
 		for (const option of this.options) {
-			const fragment = f`<li tabindex="0" part="item" data-value="${option.value}">${option.innerText}</li>`
+			const fragment = f`<li data-index=${idx++} tabindex="0" part="item" data-value="${option.value}">${option.innerText}</li>`
 			const li = fragment.querySelector("li")
 			if (option.disabled) {
 				li.part.add("disabled")
@@ -555,7 +571,7 @@ export class BetterSelect extends HTMLElement {
 	get form() { return this.#internals.form }
 
 	clear() {
-		this.setValue(undefined, "")
+		this.setValue(undefined, undefined, "")
 	}
 
 	/**
@@ -571,6 +587,21 @@ export class BetterSelect extends HTMLElement {
 		return "Please select an option."
 	}
 
+	next() {
+		const index = (this.#index ?? -1) + 1
+		const item = /** @type {HTMLElement} */(this.list.children[index])
+		if (item) {
+			this.setOption(item)
+		}
+	}
+
+	previous() {
+		const index = (this.#index ?? this.options.length) - 1
+		const item = /** @type {HTMLElement} */(this.list.children[index])
+		if (item) {
+			this.setOption(item)
+		}
+	}
 
 	setValidity() {
 		if (this.required) {
