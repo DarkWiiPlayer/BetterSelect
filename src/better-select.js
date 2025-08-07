@@ -445,18 +445,21 @@ export class BetterSelect extends HTMLElement {
 			this.close()
 			return
 		}
-		const candidates = /** @type {HTMLElement[]} */(Array.from(this.list.children).filter(child => !child.hasAttribute("hidden")))
+		const candidates = /** @type {HTMLElement[]} */(Array.from(this.list.children).filter(child => !child.hasAttribute("hidden") && !child.part.contains("disabled")))
 		if (candidates.length) {
 			this.setOption(candidates[0])
 			this.close()
 		}
 	}
 
+	static searchHideDisabled = true
+
 	/**
 	 * @param {string} value
 	 * @param {HTMLElement} item
 	 */
 	match(value, item) {
+		if (/** @type {Object} */(value && this.constructor).searchHideDisabled && item.part.contains("disabled")) return false
 		return item.innerText.toLowerCase().match(value.toLowerCase())
 	}
 
