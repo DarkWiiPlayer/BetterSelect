@@ -160,7 +160,7 @@ export class BetterSelect extends HTMLElement {
 		#text:empty ~ *[name="clear"] {
 			display: none;
 		}
-		[part="drop-down"], [part="item"] {
+		[part="drop-down"], [part~="item"] {
 			/* Resets */
 			border: unset;
 			outline: unset;
@@ -195,10 +195,10 @@ export class BetterSelect extends HTMLElement {
 				cursor: pointer;
 			}
 		}
-		[part="item"]:focus {
+		[part~="item"]:focus {
 			font-weight: bold;
 		}
-		[part="item"][hidden] {
+		[part~="item"][hidden] {
 			display: none;
 		}
 		slot[name="loading"] {
@@ -421,8 +421,9 @@ export class BetterSelect extends HTMLElement {
 	/** @param {String} value */
 	search(value) {
 		for (const item of this.list.children) {
-			if (item instanceof HTMLElement)
+			if (item instanceof HTMLElement) {
 				item.toggleAttribute("hidden", !this.match(value, item))
+			}
 		}
 	}
 
