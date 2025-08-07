@@ -87,4 +87,13 @@ better-select {
 	&:state(open)::part(display)::after {
 		transform: rotate(180deg);
 	}
+
+	&:not([required]):state(value)::part(display)::after {
+		display: none;
+	}
+
+	&::part(clear) {
+		display: block;
+		margin-left: auto;
+	}
 }

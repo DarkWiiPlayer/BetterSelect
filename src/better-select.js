@@ -154,7 +154,10 @@ export class BetterSelect extends HTMLElement {
 		[part="display-text"]:empty {
 			display: none;
 		}
-		:not(:empty + *)[name="placeholder"] {
+		:not(#text:empty + *)[name="placeholder"] {
+			display: none;
+		}
+		#text:empty ~ *[name="clear"] {
 			display: none;
 		}
 		[part="drop-down"], [part="item"] {
@@ -205,6 +208,13 @@ export class BetterSelect extends HTMLElement {
 			[part="list"] { display: none; }
 			slot[name="loading"] { display: block; }
 		}
+		slot[name="clear"] > button {
+			all: unset;
+			transform: rotate(45deg);
+			&::after {
+				content: "+";
+			}
+		}
 	`
 
 	/** @type {HTMLElement} */
@@ -232,6 +242,11 @@ export class BetterSelect extends HTMLElement {
 				<slot name="placeholder" aria-hidden="true">
 					<span part="placeholder" id="placeholder" aria-hidden="true"></span>
 				</slot>
+				<template id="clear-template">
+					<slot name="clear" part="clear">
+						<button></button>
+					</slot>
+				</template>
 			</div>
 			<dialog id="dialog" part="drop-down">
 				<slot name="top"></slot>
@@ -456,7 +471,25 @@ export class BetterSelect extends HTMLElement {
 		this.#internals.setFormValue(value, state)
 		this.text.innerText = state
 
+		this.#states.toggle("value", value)
+
+		this.updateClearButton()
 		this.setValidity()
+	}
+
+	updateClearButton() {
+		const template = /** @type {HTMLTemplateElement} */(this.shadowRoot.getElementById("clear-template"))
+		const clearButton = template.nextElementSibling
+		if (this.required || this.#value.value === undefined) {
+			clearButton?.remove()
+		} else if (!clearButton && !this.required) {
+			const button = template.content.cloneNode(true)
+			template.after(button)
+			template.nextElementSibling.addEventListener("click", event => {
+				event.stopPropagation()
+				this.clear()
+			})
+		}
 	}
 
 	get value() { return this.#value.value }
@@ -569,7 +602,10 @@ export class BetterSelect extends HTMLElement {
 
 	reportValidity() { return this.#internals.reportValidity() }
 
-	requiredChanged() { this.setValidity() }
+	requiredChanged() {
+		this.updateClearButton()
+		this.setValidity()
+	}
 
 	/**
 	 * @param {String} name
