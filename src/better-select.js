@@ -239,8 +239,8 @@ export class BetterSelect extends HTMLElement {
 		this.attachShadow({mode: "open"}).innerHTML = `
 			<div id="display" part="display">
 				<span part="display-text" id="text"></span>
-				<slot name="placeholder" aria-hidden="true">
-					<span part="placeholder" id="placeholder" aria-hidden="true"></span>
+				<slot part="placeholder" name="placeholder" aria-hidden="true">
+					<span id="placeholder" aria-hidden="true"></span>
 				</slot>
 				<template id="clear-template">
 					<slot name="clear" part="clear">
