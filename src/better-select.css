@@ -62,8 +62,12 @@ better-select {
 		padding-inline: var(--h-padding);
 	}
 
-	&::part(item):is(:hover, :focus) {
+	&::part(item enabled):is(:hover, :focus) {
 		background-color: var(--highlight);
+	}
+
+	&::part(item disabled) {
+		opacity: .6;
 	}
 
 	&:not(:state(open))::part(drop-down) {

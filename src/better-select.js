@@ -185,10 +185,12 @@ export class BetterSelect extends HTMLElement {
 		[part="list"] {
 			display: contents;
 		}
-		[part="item"] {
+		[part~="item"] {
 			display: block;
-			cursor: pointer;
 			white-space: nowrap;
+			&[part~="enabled"] {
+				cursor: pointer;
+			}
 		}
 		[part="item"]:focus {
 			font-weight: bold;
@@ -258,9 +260,11 @@ export class BetterSelect extends HTMLElement {
 			/** @type {HTMLLIElement} */
 			const item = event.target.closest("#list > li")
 			if (item) {
-				this.setOption(item)
-				this.dispatchEvent(new InputEvent("input", {bubbles: true}))
-				this.close()
+				if (!item.part.contains("disabled")) {
+					this.setOption(item)
+					this.dispatchEvent(new InputEvent("input", {bubbles: true}))
+					this.close()
+				}
 			} else if (!this.#states.has("open")) {
 				this.open()
 			} else if (this.display.contains(event.target) || this.display.contains(event.target.closest("[slot]")?.assignedSlot)) {
@@ -475,7 +479,15 @@ export class BetterSelect extends HTMLElement {
 	setOptions() {
 		this.list.replaceChildren()
 		for (const option of this.options) {
-			this.list.append(f`<li tabindex="0" part="item" data-value="${option.value}">${option.innerText}</li>`)
+			const fragment = f`<li tabindex="0" part="item" data-value="${option.value}">${option.innerText}</li>`
+			const li = fragment.querySelector("li")
+			if (option.disabled) {
+				li.part.add("disabled")
+				li.removeAttribute("tabindex")
+			} else {
+				li.part.add("enabled")
+			}
+			this.list.append(fragment)
 			if (this.value == undefined && option.selected) {
 				this.value = option.value
 			}
