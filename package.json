@@ -6,7 +6,7 @@
 	},
 	"type": "module",
 	"license": "MIT",
-	"version": "3.0.1",
+	"version": "3.0.2",
 	"url": "https://darkwiiplayer.github.io/BetterSelect/",
 	"scripts": {
 		"definitions": "tsc src/*.js --declaration --allowJs --emitDeclarationOnly"

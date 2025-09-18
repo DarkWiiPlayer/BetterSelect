@@ -2,6 +2,7 @@ export class BetterSelect extends HTMLElement {
     static formAssociated: boolean;
     static observedAttributes: readonly string[];
     static styleSheet: CSSStyleSheet;
+    static searchHideDisabled: boolean;
     /** @type {HTMLElement} */
     display: HTMLElement;
     /** @type {HTMLElement} */
@@ -18,6 +19,7 @@ export class BetterSelect extends HTMLElement {
     loading: HTMLDialogElement;
     options: HTMLCollectionOf<HTMLOptionElement>;
     keyboardSearchBuffer: string;
+    dispatchInputEvent(): void;
     /**
      * @param {String} key
      */
@@ -35,18 +37,19 @@ export class BetterSelect extends HTMLElement {
      * @param {string} value
      * @param {HTMLElement} item
      */
-    match(value: string, item: HTMLElement): RegExpMatchArray;
+    match(value: string, item: HTMLElement): false | RegExpMatchArray;
     connectedCallback(): void;
     mutationCallback(): void;
     /** @param {HTMLElement} option */
     setOption(option: HTMLElement): void;
     /**
+     * @param {number} index
      * @param {string} value
      * @param {string} state
      */
-    setValue(value: string, state?: string): void;
+    setValue(index: number, value: string, state?: string): void;
     updateClearButton(): void;
-    set value(value: any);
+    set value(arg: any);
     get value(): any;
     get valueText(): any;
     setOptions(): void;
@@ -61,7 +64,7 @@ export class BetterSelect extends HTMLElement {
     /**
      * @param {String} name
      */
-    set name(name: string);
+    set name(arg: string);
     /**
      * @return {String}
      */
@@ -71,12 +74,14 @@ export class BetterSelect extends HTMLElement {
     /**
      * @param {Boolean} disabled
      */
-    set disabled(disabled: boolean);
+    set disabled(arg: boolean);
     get disabled(): boolean;
     /**
      * @param {ValidityConstraint} _constraint
      */
     validityMessage(_constraint: ValidityConstraint): string;
+    next(): void;
+    previous(): void;
     setValidity(): boolean;
     checkValidity(): boolean;
     get validity(): ValidityState;
@@ -85,7 +90,7 @@ export class BetterSelect extends HTMLElement {
     /**
      * @param {Boolean} required
      */
-    set required(required: boolean);
+    set required(arg: boolean);
     get required(): boolean;
     reportValidity(): boolean;
     requiredChanged(): void;

@@ -280,7 +280,7 @@ export class BetterSelect extends HTMLElement {
 			if (item) {
 				if (!item.part.contains("disabled")) {
 					this.setOption(item)
-					this.dispatchEvent(new InputEvent("input", {bubbles: true}))
+					this.dispatchInputEvent()
 					this.close()
 				}
 			} else if (!this.#states.has("open")) {
@@ -318,12 +318,15 @@ export class BetterSelect extends HTMLElement {
 					event.stopPropagation()
 				} else if (key == "Delete") {
 					this.clear()
+					this.dispatchInputEvent()
 				} else if (key == "ArrowDown") {
 					event.preventDefault()
 					this.next()
+					this.dispatchInputEvent()
 				} else if (key == "ArrowUp") {
 					event.preventDefault()
 					this.previous()
+					this.dispatchInputEvent()
 				}
 			}
 		})
@@ -338,6 +341,10 @@ export class BetterSelect extends HTMLElement {
 		})
 
 		this.setValidity()
+	}
+
+	dispatchInputEvent() {
+		this.dispatchEvent(new InputEvent("input", {bubbles: true}))
 	}
 
 	/**
@@ -402,7 +409,7 @@ export class BetterSelect extends HTMLElement {
 		this.addEventListener("keypress", event => {
 			if (event.key == "Enter") {
 				this.selectDefault()
-				this.dispatchEvent(new InputEvent("input", {bubbles: true}))
+				this.dispatchInputEvent()
 			}
 		}, {signal})
 
@@ -482,7 +489,10 @@ export class BetterSelect extends HTMLElement {
 	 * @param {string} state
 	 */
 	setValue(index, value, state=value) {
-		this.#index = Number(index)
+		if (value)
+			this.#index = Number(index)
+		else
+			this.#index = undefined
 
 		this.#value = {value, state}
 		this.dispatchEvent(new Event("change", {bubbles: true}));
@@ -506,6 +516,7 @@ export class BetterSelect extends HTMLElement {
 			template.nextElementSibling.addEventListener("click", event => {
 				event.stopPropagation()
 				this.clear()
+				this.dispatchInputEvent()
 			})
 		}
 	}
