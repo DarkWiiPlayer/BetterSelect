@@ -551,6 +551,11 @@ export class BetterSelect extends HTMLElement {
 			} else {
 				li.part.add("enabled")
 			}
+
+			for (const attribute of ["title"])
+				if (option.hasAttribute(attribute))
+					li.setAttribute(attribute, option.getAttribute(attribute))
+
 			this.list.append(fragment)
 			if (this.value == undefined && option.selected) {
 				this.value = option.value
