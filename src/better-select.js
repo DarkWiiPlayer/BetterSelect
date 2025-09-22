@@ -533,8 +533,8 @@ export class BetterSelect extends HTMLElement {
 					return
 				}
 			}
+			throw `No option with value ${value}`
 		}
-		throw `No option with value ${value}`
 	}
 
 	get valueText() { return this.#value.state }
