@@ -54,6 +54,8 @@ export class BetterSelect extends HTMLElement {
      */
     setValue(index: number, value: string, state?: string): void;
     updateClearButton(): void;
+    /** Value to use in the form data to represent an empty input */
+    get emptyFormValue(): string;
     set value(value: any);
     get value(): any;
     get valueText(): any;

@@ -261,7 +261,7 @@ export class BetterSelect extends HTMLElement {
 			</dialog>
 		`
 		this.shadowRoot.adoptedStyleSheets = [BetterSelect.styleSheet]
-		this.#internals.setFormValue("", "")
+		this.#internals.setFormValue(this.emptyFormValue)
 
 		this.tabIndex = 0
 
@@ -507,9 +507,9 @@ export class BetterSelect extends HTMLElement {
 			this.#index = undefined
 
 		this.#value = {value, state}
-		this.dispatchEvent(new Event("change", {bubbles: true}));
-		this.#internals.setFormValue(value, state)
+		this.#internals.setFormValue(value ?? this.emptyFormValue, state)
 		this.text.innerText = state
+		this.dispatchEvent(new Event("change", {bubbles: true}))
 
 		this.#states.toggle("value", value)
 
@@ -531,6 +531,11 @@ export class BetterSelect extends HTMLElement {
 				this.dispatchInputEvent()
 			})
 		}
+	}
+
+	/** Value to use in the form data to represent an empty input */
+	get emptyFormValue() {
+		return this.getAttribute("empty-form-value") ?? undefined
 	}
 
 	get value() { return this.#value.value }
