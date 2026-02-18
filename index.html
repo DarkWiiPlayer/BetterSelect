@@ -2,7 +2,14 @@
 
 <script type="module">
 	import {BetterSelect} from "./src/better-select.js"
+	import controllers from "https://cdn.jsdelivr.net/gh/darkwiiplayer/controller-registry@21c7998/src/controller-registry.js"
 
+	controllers.define("print-form-value", (element, detached) => {
+		element.addEventListener("change", ({target}) => {
+			let values = Object.fromEntries(new FormData(target.form).entries())
+			console.log(target.value, values)
+		}, detached)
+	})
 	customElements.define("better-select", BetterSelect)
 </script>
 
@@ -50,12 +57,14 @@
 
 	<p>A better muli-option input box for HTML</p>
 
-	<better-select name="better-selection" class="search" placeholder="Placeholder..." search-placeholder="Search...">
-		<span slot="placeholder">Placeholder...</span>
-		<option value="first" title="placeholder">First value</option>
-		<option value="second" disabled>Second value</option>
-		<option value="third">Third value</option>
-	</better-select>
+	<form controller="print-form-value">
+		<better-select name="better-selection" class="search" placeholder="Placeholder..." search-placeholder="Search...">
+			<span slot="placeholder">Placeholder...</span>
+			<option value="first" title="placeholder">First value</option>
+			<option value="second" disabled>Second value</option>
+			<option value="third">Third value</option>
+		</better-select>
+	</form>
 
 	<details>
 		<summary>More examples</summary>
