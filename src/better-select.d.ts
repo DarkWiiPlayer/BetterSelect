@@ -42,6 +42,11 @@ export class BetterSelect extends HTMLElement {
     mutationCallback(): void;
     /** @param {HTMLElement} option */
     setOption(option: HTMLElement): void;
+    /** Callback used by the browser to (re)set the value
+     * @see {@link https://html.spec.whatwg.org/multipage/custom-elements.html#face-state Specification}
+     * @param {string} state
+     */
+    formStateRestoreCallback(state: string): void;
     /**
      * @param {number} index
      * @param {string} value
@@ -49,7 +54,7 @@ export class BetterSelect extends HTMLElement {
      */
     setValue(index: number, value: string, state?: string): void;
     updateClearButton(): void;
-    set value(arg: any);
+    set value(value: any);
     get value(): any;
     get valueText(): any;
     setOptions(): void;
@@ -64,7 +69,7 @@ export class BetterSelect extends HTMLElement {
     /**
      * @param {String} name
      */
-    set name(arg: string);
+    set name(name: string);
     /**
      * @return {String}
      */
@@ -74,7 +79,7 @@ export class BetterSelect extends HTMLElement {
     /**
      * @param {Boolean} disabled
      */
-    set disabled(arg: boolean);
+    set disabled(disabled: boolean);
     get disabled(): boolean;
     /**
      * @param {ValidityConstraint} _constraint
@@ -90,7 +95,7 @@ export class BetterSelect extends HTMLElement {
     /**
      * @param {Boolean} required
      */
-    set required(arg: boolean);
+    set required(required: boolean);
     get required(): boolean;
     reportValidity(): boolean;
     requiredChanged(): void;

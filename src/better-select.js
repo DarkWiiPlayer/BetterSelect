@@ -483,6 +483,18 @@ export class BetterSelect extends HTMLElement {
 		return this.setValue(Number(option.dataset.index), option.dataset.value, option.innerText)
 	}
 
+	/** Callback used by the browser to (re)set the value
+	 * @see {@link https://html.spec.whatwg.org/multipage/custom-elements.html#face-state Specification}
+	 * @param {string} state
+	 */
+	formStateRestoreCallback(state) {
+		for (const option of this.options) {
+			if (option.innerText == state) {
+				this.setOption(option)
+			}
+		}
+	}
+
 	/**
 	 * @param {number} index
 	 * @param {string} value
